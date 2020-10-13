@@ -67,12 +67,14 @@ class Controller:
         self.wlans = None
 
     async def check_unifi_os(self):
+        self.headers = None
         response = await self._request("get", url=self.url, allow_redirects=False)
         if response.status == 200:
             self.is_unifi_os = True
             self.headers = {"x-csrf-token": response.headers.get("x-csrf-token")}
 
     async def login(self):
+        await self.check_unifi_os()
         if self.is_unifi_os:
             url = f"{self.url}/api/auth/login"
         else:
@@ -83,7 +85,7 @@ class Controller:
             "password": self.password,
             "remember": True,
         }
-
+        
         await self._request("post", url=url, json=auth)
 
         self.can_retry_login = True
