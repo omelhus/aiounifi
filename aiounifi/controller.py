@@ -200,7 +200,7 @@ class Controller:
             # Session likely expired, try again
             self.can_retry_login = False
             # Make sure we get a new csrf token
-            await self.check_unifi_os()
+            # await self.check_unifi_os()
             await self.login()
             return await self._request(method, path, json, url, **kwargs)
 
