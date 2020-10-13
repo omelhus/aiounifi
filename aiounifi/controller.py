@@ -71,7 +71,10 @@ class Controller:
         response = await self._request("get", url=self.url, allow_redirects=False)
         if response.status == 200:
             self.is_unifi_os = True
-            self.headers = {"x-csrf-token": response.headers.get("x-csrf-token")}
+            if response.headers.get("X-CSRF-Token") is None:
+                headers = pformat(response.headers)
+                raise ResponseError(f"X-CSRF-Token is empty at {self.url} with {headers}")
+            self.headers = {"X-CSRF-Token": response.headers.get("X-CSRF-Token")}
 
     async def login(self):
         await self.check_unifi_os()
@@ -85,7 +88,6 @@ class Controller:
             "password": self.password,
             "remember": True,
         }
-        
         await self._request("post", url=url, json=auth)
 
         self.can_retry_login = True
